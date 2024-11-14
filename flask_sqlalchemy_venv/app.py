@@ -14,9 +14,11 @@ from marshmallow import fields, ValidationError
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:Babinz2023!@localhost/gym_members'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:Babinz2023!@localhost/gym_database'
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+
 
 
 class MemberSchema(ma.Schema):
@@ -57,20 +59,23 @@ class Member(db.Model):
       __table_name__ = "Members"
 
       id = db.Column(db.Integer, primary_key = True)
-      name= db.Column(db.String(255), nullable = False)
+      name= db.Column(db.String(255), unique = True, nullable = False)
       age = db.Column(db.String(8))
-      sessions = db.relationship('WorkoutSession', backref= 'member')
+      member_sessions = db.relationship('WorkoutSession', backref= 'members', lazy = True)
       
+ 
 
 class WorkoutSession(db.Model):
       __table_name__ = "WorkoutSessions"
 
       session_id = db.Column(db.Integer, primary_key = True)
-      member_id= db.Column(db.Integer, db.ForeignKey('member.id'), nullable = False)
+      member_id= db.Column(db.Integer, db.ForeignKey('member.id'))
+      
       session_date = db.Column(db.Date)
-      duration_minutes = db.Column(db.Integer)
+      session_time = db.Column(db.String(40))
       activity = db.Column(db.String(255))
-      calories_burned = db.Column(db.Integer)
+      member = db.relationship('Member', backref = 'member_session', uselist= False)
+    
       
 
 
